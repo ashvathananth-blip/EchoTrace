@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { predictEvolution } from "@/lib/anthropic";
+import { findClaimSources } from "@/lib/groq-predict";
 import {
   PREDICTION_MAX_BRANCHES,
   PREDICTION_MAX_DEPTH,
@@ -111,6 +112,19 @@ export async function POST(request: Request) {
       engine: "anthropic",
       verdict: `Hypothetical evolution predicted by the model across up to ${depth} generations.`,
     });
+    if (process.env.GROQ_API_KEY) {
+      try {
+        chain.nodes[0].sources = await findClaimSources(claim);
+        if (chain.nodes[0].sources.length === 0) {
+          chain.message = "Web search found no sources to display for this claim.";
+        }
+      } catch (error) {
+        console.error(
+          `[echotrace] source search failed: ${error instanceof Error ? error.message : "unknown error"}`,
+        );
+        chain.message = "Source search is temporarily unavailable.";
+      }
+    }
     return NextResponse.json({ chain });
   }
 
@@ -124,6 +138,22 @@ export async function POST(request: Request) {
       "Local prediction: no model key is configured, so these mutations come from a rule-based simulator, not the AI. Treat them as illustrative.",
     verdict: `Illustrative local forecast across up to ${depth} generations.`,
   });
-
+  if (process.env.GROQ_API_KEY) {
+    try {
+      chain.nodes[0].sources = await findClaimSources(claim);
+      if (chain.nodes[0].sources.length === 0) {
+        chain.message = [chain.message, "Web search found no sources to display for this claim."]
+          .filter(Boolean)
+          .join(" ");
+      }
+    } catch (error) {
+      console.error(
+        `[echotrace] source search failed: ${error instanceof Error ? error.message : "unknown error"}`,
+      );
+      chain.message = [chain.message, "Source search is temporarily unavailable."]
+        .filter(Boolean)
+        .join(" ");
+    }
+  }
   return NextResponse.json({ chain });
 }

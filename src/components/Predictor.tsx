@@ -13,8 +13,8 @@ const EXAMPLE_CLAIM =
 
 export default function Predictor({ onChain, initialClaim = "" }: PredictorProps) {
   const [claim, setClaim] = useState(initialClaim);
-  const [depth, setDepth] = useState(3);
-  const [branches, setBranches] = useState(3);
+  const [depth, setDepth] = useState(2);
+  const [branches, setBranches] = useState(2);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
