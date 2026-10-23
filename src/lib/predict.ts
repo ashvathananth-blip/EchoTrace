@@ -8,6 +8,7 @@ import type {
   PredictionDraft,
   StatementNode,
 } from "./types";
+import { validatePrediction } from "./validate-prediction";
 
 export const PREDICTION_MIN_DEPTH = 1;
 export const PREDICTION_MAX_DEPTH = 3;
