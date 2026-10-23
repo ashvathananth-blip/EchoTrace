@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { predictEvolution } from "@/lib/anthropic";
+import { generateGroqPredictions } from "@/lib/groq-predict";
 import {
   PREDICTION_MAX_BRANCHES,
   PREDICTION_MAX_DEPTH,
@@ -93,17 +93,31 @@ export async function POST(request: Request) {
     claim,
   };
 
-  if (process.env.ANTHROPIC_API_KEY) {
-    const result = await predictEvolution(claim, depth, branches);
-    if (!result) {
-      return NextResponse.json(
-        {
-          error:
-            "The prediction model is unavailable right now. No graph was generated and nothing was substituted. Try again in a moment.",
-        },
-        { status: 502 },
-      );
-    }
+  if (process.env.GROQ_API_KEY) {
+  try {
+    const drafts = await generateGroqPredictions(claim, depth, branches);
+
+    const chain = buildPrediction({
+      ...base,
+      drafts,
+      engine: "groq",
+      verdict: `Hypothetical evolution predicted by Groq across up to ${depth} generations.`,
+    });
+
+    return NextResponse.json({ chain });
+  } catch (error) {
+    console.error("Groq prediction failed:", error);
+
+    return NextResponse.json(
+      {
+        error: "Groq prediction failed. No substitute graph was generated.",
+      },
+      { status: 502 },
+    );
+  }
+}
+  
+
 
     const chain = buildPrediction({
       ...base,
