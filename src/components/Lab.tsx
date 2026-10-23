@@ -349,16 +349,24 @@ export default function Lab() {
                 <div className="graph-sidebar">
                   <section className="sources-panel" aria-label="Sources for the original claim">
                     <div className="sources-head">
-                      <div>
+                      <div className="sources-title">
+                        <span className="sources-icon" aria-hidden="true">
+                          <svg viewBox="0 0 24 24" fill="none">
+                            <circle cx="10.8" cy="10.8" r="6.5" />
+                            <path d="m15.6 15.6 4.2 4.2" />
+                          </svg>
+                        </span>
+                        <div>
                         <p className="sources-eyebrow">Research</p>
-                        <h2>Sources</h2>
+                          <h2>Claim sources</h2>
+                        </div>
                       </div>
                       <span className="sources-count">
-                        {chain.nodes[0]?.sources?.length ?? 0}
+                        {chain.nodes[0]?.sources?.length ?? 0} found
                       </span>
                     </div>
                     <p className="sources-note">
-                      References found for the original claim. Sources do not prove how it spread.
+                      References for the original claim—not evidence of how it spread.
                     </p>
                     {chain.nodes[0]?.sources?.length ? (
                       <ul className="sources-list">
