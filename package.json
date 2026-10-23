@@ -11,7 +11,9 @@
     "selfcheck": "tsc src/lib/types.ts src/lib/taxonomy.ts src/lib/diff.ts src/lib/analyze.ts src/lib/graph.ts src/lib/examples.ts src/lib/share.ts --outDir .selfcheck --module commonjs --target es2022 --moduleResolution node --skipLibCheck --esModuleInterop && node scripts/selfcheck.cjs"
   },
   "dependencies": {
+    "@tavily/core": "^0.7.14",
     "@xyflow/react": "^12.3.0",
+    "groq-sdk": "^1.6.0",
     "next": "^15.5.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0"
