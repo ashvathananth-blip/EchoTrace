@@ -12,7 +12,7 @@ export type MutationKind =
 
 export type Direction = "up" | "down" | "shift";
 
-export type Engine = "curated" | "heuristic" | "anthropic";
+export type Engine = "curated" | "heuristic" | "anthropic" | "groq";
 
 export type RelationshipType = "documented" | "inferred" | "insufficient";
 

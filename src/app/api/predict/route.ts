@@ -119,15 +119,6 @@ export async function POST(request: Request) {
   
 
 
-    const chain = buildPrediction({
-      ...base,
-      drafts: result.drafts,
-      engine: "anthropic",
-      verdict: `Hypothetical evolution predicted by the model across up to ${depth} generations.`,
-    });
-    return NextResponse.json({ chain });
-  }
-
   const engine: Engine = "heuristic";
   const drafts = localPrediction(claim, depth, branches);
   const chain = buildPrediction({
