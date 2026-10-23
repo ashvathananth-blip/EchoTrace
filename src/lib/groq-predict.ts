@@ -54,6 +54,17 @@ Generate hypothetical distortions, not verified historical events.
 Do not invent sources or citations.
 Do not treat search results as proof that a claim is true.
 
+The original claim may be true, false, misleading, absurd, or conspiratorial.
+
+Do not reject a claim merely because it is factually false.
+
+If the claim is already false or extreme, generate plausible hypothetical
+variations, elaborations, exaggerations, and conspiracy-style mutations.
+
+Keep fact-checking separate from predicting how misinformation might evolve.
+
+Never present hypothetical mutations as factual statements or documented events.
+
 Return JSON only.`
       },
       {
