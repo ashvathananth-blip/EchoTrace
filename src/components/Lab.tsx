@@ -19,6 +19,18 @@ const Graph = dynamic(() => import("./Graph"), {
 
 type View = "welcome" | "investigation";
 
+function sourceHost(url?: string): string {
+  if (!url) return "";
+  try {
+    const parsed = new URL(url);
+    return parsed.protocol === "http:" || parsed.protocol === "https:"
+      ? parsed.hostname
+      : "";
+  } catch {
+    return "";
+  }
+}
+
 function engineLabel(chain: Chain): string {
   const prediction = chain.mode === "predict";
   if (chain.engine === "anthropic") return prediction ? "Model prediction" : "Model analysis";
@@ -260,7 +272,7 @@ export default function Lab() {
                   </div>
                   <h1>{chain.title}</h1>
                   {chain.verdict ? <p className="verdict">{chain.verdict}</p> : null}
-                  {chain.engine === "heuristic" && chain.message ? (
+                  {chain.message ? (
                     <p className="notice">{chain.message}</p>
                   ) : null}
                 </div>
@@ -334,15 +346,58 @@ export default function Lab() {
                   ) : null}
                 </div>
 
-                <aside className="analysis" ref={analysisRef} aria-label="Analysis">
-                  <Inspector
-                    key={`${chain.id}-${selection?.kind ?? "none"}-${selection?.id ?? "none"}`}
-                    chain={chain}
-                    selection={selection}
-                    onSelectNode={selectNode}
-                    onSelectEdge={selectEdge}
-                  />
-                </aside>
+                <div className="graph-sidebar">
+                  <section className="sources-panel" aria-label="Sources for the original claim">
+                    <div className="sources-head">
+                      <div>
+                        <p className="sources-eyebrow">Research</p>
+                        <h2>Sources</h2>
+                      </div>
+                      <span className="sources-count">
+                        {chain.nodes[0]?.sources?.length ?? 0}
+                      </span>
+                    </div>
+                    <p className="sources-note">
+                      References found for the original claim. Sources do not prove how it spread.
+                    </p>
+                    {chain.nodes[0]?.sources?.length ? (
+                      <ul className="sources-list">
+                        {chain.nodes[0].sources.map((source) => (
+                          <li key={source.url ?? source.label}>
+                            {source.url && sourceHost(source.url) ? (
+                              <a href={source.url} target="_blank" rel="noreferrer noopener">
+                                <span className="source-mark" aria-hidden>
+                                  ↗
+                                </span>
+                                <span className="source-copy">
+                                  <strong>{source.label}</strong>
+                                  <small>{sourceHost(source.url)}</small>
+                                </span>
+                              </a>
+                            ) : (
+                              <span className="source-copy">
+                                <strong>{source.label}</strong>
+                              </span>
+                            )}
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p className="sources-empty">
+                        No web sources found. Add <code>GROQ_API_KEY</code> to enable search.
+                      </p>
+                    )}
+                  </section>
+                  <aside className="analysis" ref={analysisRef} aria-label="Analysis">
+                    <Inspector
+                      key={`${chain.id}-${selection?.kind ?? "none"}-${selection?.id ?? "none"}`}
+                      chain={chain}
+                      selection={selection}
+                      onSelectNode={selectNode}
+                      onSelectEdge={selectEdge}
+                    />
+                  </aside>
+                </div>
               </div>
             </>
           ) : (
@@ -381,7 +436,7 @@ export default function Lab() {
               {inputMode === "predict" ? (
                 <Predictor onChain={handleChain} />
               ) : (
-                <Composer seed={seed} onChain={handleChain} />
+                <Composer key={JSON.stringify(seed)} seed={seed} onChain={handleChain} />
               )}
             </section>
           )}

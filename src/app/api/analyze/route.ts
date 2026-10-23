@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { buildInvestigation, inferRelationships } from "@/lib/analyze";
 import { investigateStatements } from "@/lib/anthropic";
+import { findClaimSources } from "@/lib/groq-predict";
 import type {
   Engine,
   InvestigationEdgeCandidate,
@@ -114,10 +115,11 @@ export async function POST(request: Request) {
     statements,
   };
 
-  let candidates: InvestigationEdgeCandidate[] = [];
+  let candidates: InvestigationEdgeCandidate[];
   let engine: Engine = "heuristic";
   let message: string | undefined;
   let verdict: string | undefined;
+  let claimSources: StatementOrigin[] = [];
 
   try {
     if (process.env.ANTHROPIC_API_KEY) {
@@ -158,8 +160,27 @@ export async function POST(request: Request) {
     );
   }
 
+  if (process.env.GROQ_API_KEY) {
+    try {
+      claimSources = await findClaimSources(claim);
+      if (claimSources.length === 0) {
+        message = [message, "Web search found no sources to display for this claim."]
+          .filter(Boolean)
+          .join(" ");
+      }
+    } catch (error) {
+      console.error(
+        `[echotrace] source search failed: ${error instanceof Error ? error.message : "unknown error"}`,
+      );
+      message = [message, "Source search is temporarily unavailable."]
+        .filter(Boolean)
+        .join(" ");
+    }
+  }
+
   const chain = buildInvestigation({
     ...base,
+    claimSources,
     candidates,
     engine,
     message,

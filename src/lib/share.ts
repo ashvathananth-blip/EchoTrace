@@ -46,6 +46,7 @@ interface EncodedNode {
   x: string;
   s: Chain["nodes"][number]["source"];
   src?: StatementOrigin;
+  sources?: StatementOrigin[];
   m: EncodedMutation[];
 }
 
@@ -108,6 +109,7 @@ export function encodeChain(chain: Chain): string {
       x: node.text,
       s: node.source,
       src: node.origin,
+      sources: node.sources,
       m: node.mutations.map(encodeMutation),
     })),
     g: (chain.edges ?? []).map((edge) => ({
@@ -138,6 +140,7 @@ export function decodeChain(payload: string): Chain | null {
         text: node.x,
         source: node.s ?? "curated",
         origin: node.src,
+        sources: Array.isArray(node.sources) ? node.sources : undefined,
         mutations: (node.m ?? []).map(decodeMutation),
       }));
 

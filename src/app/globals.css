@@ -645,7 +645,7 @@ select:focus {
 
 .workspace {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 380px;
+  grid-template-columns: minmax(0, 1fr) minmax(300px, 350px);
   gap: 16px;
   align-items: start;
 }
@@ -656,7 +656,10 @@ select:focus {
   overflow: hidden;
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  background: var(--bg-soft);
+  border-color: #1a2d46;
+  background:
+    radial-gradient(ellipse at 50% 42%, rgba(32, 75, 126, 0.12), transparent 68%),
+    #071321;
 }
 
 .graph-column {
@@ -744,6 +747,21 @@ select:focus {
   --xy-background-color: transparent;
 }
 
+.react-flow__controls {
+  border-color: #233955;
+  background: rgba(9, 22, 39, 0.94);
+}
+
+.react-flow__controls-button {
+  border-color: #20344e;
+  background: #0c1b2e;
+  color: #a9bdd8;
+}
+
+.react-flow__controls-button:hover {
+  background: #142b47;
+}
+
 .react-flow__attribution {
   background: transparent;
   font-size: 9px;
@@ -794,14 +812,24 @@ select:focus {
   display: flex;
   flex-direction: column;
   width: 100%;
-  height: 146px;
-  padding: 11px 13px 10px;
-  border: 1px solid var(--line);
+  height: 136px;
+  padding: 14px 15px 12px;
+  border: 1px solid #1d3850;
   border-top: 2px solid #33475c;
-  border-radius: 12px;
-  background: #0e141d;
-  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.34);
+  border-radius: 13px;
+  background: #0c1b2a;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.28);
   transition: border-color 0.16s ease, box-shadow 0.16s ease, opacity 0.18s ease;
+}
+
+.node.is-claim {
+  border-color: #7657ff;
+  background: linear-gradient(145deg, rgba(87, 55, 204, 0.22), rgba(14, 20, 48, 0.96));
+}
+
+.node.is-statement {
+  border-color: #0aa984;
+  background: linear-gradient(145deg, rgba(5, 104, 91, 0.2), rgba(7, 34, 39, 0.96));
 }
 
 .node.is-linked {
@@ -817,7 +845,7 @@ select:focus {
 }
 
 .node.is-dim {
-  opacity: 0.58;
+  opacity: 1;
 }
 
 .node.is-active {
@@ -828,18 +856,26 @@ select:focus {
     0 14px 30px rgba(0, 0, 0, 0.4);
 }
 
+.node.is-claim.is-active {
+  border-color: #9c83ff;
+}
+
+.node.is-statement.is-active {
+  border-color: #38e0bd;
+}
+
 .node-top {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  margin-bottom: 7px;
+  margin-bottom: 5px;
 }
 
 .node-band {
   font-size: 10px;
   font-weight: 650;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
@@ -867,7 +903,7 @@ select:focus {
   margin-top: auto;
   overflow: hidden;
   color: var(--muted);
-  font-size: 10.5px;
+  font-size: 10px;
   white-space: nowrap;
 }
 
@@ -905,42 +941,137 @@ select:focus {
 }
 
 .edge-label {
-  position: absolute;
-  top: 0;
-  left: 0;
-  display: inline-flex;
+  display: none;
+}
+
+.graph-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: var(--graph-height);
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+.sources-panel {
+  padding: 16px;
+  border: 1px solid #1b3049;
+  border-radius: var(--radius);
+  background: linear-gradient(150deg, #0d1b2c, #091522);
+}
+
+.sources-head {
+  display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 4px 8px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 6px;
-  background: rgba(9, 14, 21, 0.92);
-  color: var(--muted);
-  font-size: 10px;
-  font-weight: 500;
-  letter-spacing: 0.005em;
-  white-space: nowrap;
-  cursor: pointer;
-  pointer-events: all;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.34);
-  transition: color 0.15s ease, border-color 0.15s ease;
+  justify-content: space-between;
 }
 
-.edge-label:hover,
-.edge-label.is-active {
-  border-color: rgba(255, 255, 255, 0.14);
+.sources-eyebrow {
+  color: #55a5ff;
+  font-size: 9px;
+  font-weight: 650;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.sources-head h2 {
+  margin-top: 2px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.sources-count {
+  display: grid;
+  min-width: 25px;
+  height: 25px;
+  padding: 0 6px;
+  place-items: center;
+  border: 1px solid rgba(64, 133, 255, 0.3);
+  border-radius: 8px;
+  background: rgba(64, 133, 255, 0.12);
+  color: #70aaff;
+  font-size: 11px;
+}
+
+.sources-note,
+.sources-empty {
+  margin-top: 7px;
+  color: #8ea3bd;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.sources-empty code {
+  color: #85b6ff;
+}
+
+.sources-list {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sources-list a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px;
+  border: 1px solid rgba(116, 151, 190, 0.12);
+  border-radius: 9px;
+  background: rgba(18, 39, 62, 0.58);
   color: var(--text);
+  text-decoration: none;
+  transition: border-color 0.15s ease, background 0.15s ease;
 }
 
-.edge-dot {
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
+.sources-list a:hover {
+  border-color: rgba(64, 133, 255, 0.42);
+  background: rgba(26, 54, 85, 0.72);
+}
+
+.source-mark {
+  display: grid;
+  flex: none;
+  width: 28px;
+  height: 28px;
+  place-items: center;
+  border: 1px solid rgba(64, 133, 255, 0.28);
+  border-radius: 8px;
+  background: rgba(64, 133, 255, 0.12);
+  color: #68a4ff;
+  font-size: 15px;
+}
+
+.source-copy {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.source-copy strong,
+.source-copy small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.source-copy strong {
+  font-size: 11.5px;
+  font-weight: 550;
+}
+
+.source-copy small {
+  color: #8197b0;
+  font-size: 9.5px;
 }
 
 .analysis {
   scroll-margin-top: 76px;
-  max-height: var(--graph-height);
+  max-height: none;
   overflow-y: auto;
   border: 1px solid var(--line);
   border-radius: var(--radius);
@@ -1667,6 +1798,11 @@ select:focus {
     grid-template-columns: minmax(0, 1fr);
   }
 
+  .graph-sidebar {
+    max-height: none;
+    overflow: visible;
+  }
+
   .analysis {
     max-height: none;
   }
@@ -1769,7 +1905,7 @@ select:focus {
     display: none;
   }
 
-  .react-flow__controls {
+  .react-flow__controls.bottom.right {
     top: 12px;
     right: auto;
     bottom: auto;

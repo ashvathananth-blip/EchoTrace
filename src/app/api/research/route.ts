@@ -17,7 +17,6 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-
     const result = await researchClaim(claim.trim());
 
     return NextResponse.json(result);
@@ -30,4 +29,3 @@ export async function POST(request: NextRequest) {
     );
   }
 }
-

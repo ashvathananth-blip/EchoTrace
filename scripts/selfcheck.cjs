@@ -168,6 +168,9 @@ for (const [before, after] of edgeCases) {
   ok(`analyzePair survives ${JSON.stringify(before)} -> ${JSON.stringify(after)}`, survived && result.length > 0);
 }
 
+sleep.nodes[0].sources = [
+  { label: "Example research", url: "https://example.org/research" },
+];
 const url = encodeChain(sleep);
 const decoded = decodeChain(url);
 const countMutations = (c) => c.nodes.reduce((total, node) => total + node.mutations.length, 0);
@@ -177,6 +180,7 @@ ok("permalink keeps every node", decoded.nodes.length === sleep.nodes.length);
 ok("permalink keeps every mutation", countMutations(decoded) === countMutations(sleep));
 ok("permalink keeps evidence quotes", decoded.nodes[2].mutations[0].evidence.removed.length > 0);
 ok("permalink keeps severities", decoded.nodes[3].mutations[0].severity === 84);
+ok("permalink keeps claim sources", decoded.nodes[0].sources[0].url === "https://example.org/research");
 ok("permalink rejects garbage", decodeChain("not-a-chain") === null);
 console.log(`      permalink: ${url.length} chars for ${sleep.nodes.length} nodes`);
 

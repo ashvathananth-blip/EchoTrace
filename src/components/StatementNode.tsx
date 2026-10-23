@@ -1,28 +1,21 @@
 "use client";
 
 import { Handle, Position, type NodeProps } from "@xyflow/react";
-import { bandFor } from "@/lib/graph";
 import { dominantMutation, metaFor } from "@/lib/taxonomy";
 import type { StatementNodeData } from "./graph-types";
 
 export default function StatementNode({ data }: NodeProps) {
   const node = data as unknown as StatementNodeData;
-  const band = bandFor(node.drift);
   const dominant = dominantMutation(node.statement.mutations);
   const meta = dominant ? metaFor(dominant.kind) : null;
 
-  const status = node.isClaim
-    ? node.prediction
-      ? "Original claim"
-      : "Source claim"
-    : node.unlinked
-      ? "Not linked"
-      : band.label;
+  const status = node.isClaim ? "Claim" : node.unlinked ? "Unlinked" : "Statement";
 
   return (
     <div
       className={[
         "node",
+        node.isClaim ? "is-claim" : "is-statement",
         node.active ? "is-active" : "",
         node.linked ? "is-linked" : "",
         node.onPath ? "is-path" : "is-dim",
@@ -30,14 +23,15 @@ export default function StatementNode({ data }: NodeProps) {
       ]
         .filter(Boolean)
         .join(" ")}
-      style={{ borderTopColor: node.unlinked ? "#4b5c70" : band.color }}
     >
       {node.isClaim ? null : <Handle type="target" position={Position.Top} />}
 
       <div className="node-top">
         <span
           className="node-band"
-          style={{ color: node.unlinked ? "#7c8fa3" : band.color }}
+          style={{
+            color: node.isClaim ? "#9c83ff" : node.unlinked ? "#9aa8ba" : "#10cda2",
+          }}
         >
           {status}
         </span>

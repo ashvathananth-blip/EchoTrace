@@ -896,6 +896,7 @@ function candidateWeight(candidate: InvestigationEdgeCandidate): number {
 export interface InvestigationBuildParams {
   id: string;
   claim: string;
+  claimSources?: StatementOrigin[];
   statements: InvestigationStatement[];
   candidates: InvestigationEdgeCandidate[];
   engine: Engine;
@@ -911,6 +912,7 @@ export function buildInvestigation(params: InvestigationBuildParams): Chain {
       text: params.claim,
       mutations: [],
       source: params.engine,
+      sources: params.claimSources,
     },
     ...params.statements.map((statement) => ({
       id: statement.id,
