@@ -58,7 +58,8 @@ Return JSON only.`
       },
       {
         role: "user",
-        content: JSON.stringify({ claim, depth, branches })
+        content: JSON.stringify({ claim, depth, branches, evidence })
+
       }
     ]
   });
@@ -66,7 +67,7 @@ Return JSON only.`
   const content = completion.choices[0]?.message?.content;
 
   if (!content) {
-    throw new Error("Groq returned an empty prediction, evidence");
+   throw new Error("Groq returned an empty prediction");
   }
 
   const parsed: unknown = JSON.parse(content);

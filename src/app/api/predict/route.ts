@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { predictEvolution } from "@/lib/anthropic";
+import { generateGroqPredictions } from "@/lib/groq-predict";
+import { researchClaim } from "@/lib/research";
 import {
   PREDICTION_MAX_BRANCHES,
   PREDICTION_MAX_DEPTH,
@@ -93,26 +94,59 @@ export async function POST(request: Request) {
     claim,
   };
 
-  if (process.env.ANTHROPIC_API_KEY) {
-    const result = await predictEvolution(claim, depth, branches);
-    if (!result) {
-      return NextResponse.json(
-        {
-          error:
-            "The prediction model is unavailable right now. No graph was generated and nothing was substituted. Try again in a moment.",
+
+  if (process.env.GROQ_API_KEY) {
+    try {
+      let sources: Awaited<ReturnType<typeof researchClaim>>["sources"] = [];
+
+      if (process.env.TAVILY_API_KEY) {
+        try {
+          const research = await researchClaim(claim);
+          sources = research.sources;
+        } catch (error) {
+          console.error("Tavily research failed:", error);
+        }
+      }
+
+      const evidence = sources
+        .slice(0, 5)
+        .map(
+          (source, index) =>
+            `[${index + 1}] ${source.title}\nURL: ${source.url}\nExcerpt: ${source.content.slice(0, 1500)}`,
+        )
+        .join("\n\n");
+
+      const drafts = await generateGroqPredictions(
+        claim,
+        depth,
+        branches,
+        evidence,
+      );
+
+      const chain = buildPrediction({
+        ...base,
+        drafts,
+        engine: "groq",
+        verdict: `Hypothetical evolution predicted by Groq across up to ${depth} generations.`,
+      });
+
+      return NextResponse.json({
+        chain,
+        research: {
+          sources,
+          status: sources.length > 0 ? "retrieved" : "unavailable",
         },
+      });
+    } catch (error) {
+      console.error("Groq prediction failed:", error);
+
+      return NextResponse.json(
+        { error: "Groq prediction failed. No substitute graph was generated." },
         { status: 502 },
       );
     }
-
-    const chain = buildPrediction({
-      ...base,
-      drafts: result.drafts,
-      engine: "anthropic",
-      verdict: `Hypothetical evolution predicted by the model across up to ${depth} generations.`,
-    });
-    return NextResponse.json({ chain });
   }
+
 
   const engine: Engine = "heuristic";
   const drafts = localPrediction(claim, depth, branches);
@@ -125,5 +159,12 @@ export async function POST(request: Request) {
     verdict: `Illustrative local forecast across up to ${depth} generations.`,
   });
 
-  return NextResponse.json({ chain });
+    return NextResponse.json({
+    chain,
+    research: {
+      sources: [],
+      status: "unavailable",
+    },
+  });
 }
+
