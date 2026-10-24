@@ -380,29 +380,29 @@ const handleChain = useCallback((next: Chain, sources: ResearchSource[] = []) =>
                         </div>
                       </div>
                       <span className="sources-count">
-                        {chain.nodes[0]?.sources?.length ?? 0} found
+                        {researchSources.length} found
                       </span>
                     </div>
                     <p className="sources-note">
                       References for the original claim—not evidence of how it spread.
                     </p>
-                    {chain.nodes[0]?.sources?.length ? (
+                    {researchSources.length > 0 ? (
                       <ul className="sources-list">
-                        {chain.nodes[0].sources.map((source) => (
-                          <li key={source.url ?? source.label}>
+                        {researchSources.map((source) => (
+                          <li key={source.url}>
                             {source.url && sourceHost(source.url) ? (
                               <a href={source.url} target="_blank" rel="noreferrer noopener">
                                 <span className="source-mark" aria-hidden>
                                   ↗
                                 </span>
                                 <span className="source-copy">
-                                  <strong>{source.label}</strong>
+                                  <strong>{source.title}</strong>
                                   <small>{sourceHost(source.url)}</small>
                                 </span>
                               </a>
                             ) : (
                               <span className="source-copy">
-                                <strong>{source.label}</strong>
+                                <strong>{source.title}</strong>
                               </span>
                             )}
                           </li>
