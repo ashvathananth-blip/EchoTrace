@@ -24,18 +24,21 @@ npm run dev            # http://localhost:3000
 ```
 
 The app works with no configuration: the built-in offline analyser compares
-statements word by word and classifies the transformations it finds. To let a
-model read the same evidence and explain it, add a key:
+statements word by word and classifies the transformations it finds. Add
+`GROQ_API_KEY` to enable web search for claim sources alongside the graph. To let
+Anthropic classify and explain statement changes as well, add its key:
 
 ```bash
 cp .env.example .env.local
 # ANTHROPIC_API_KEY=sk-ant-...
 # ANTHROPIC_MODEL=claude-sonnet-4-5   # optional
+# GROQ_API_KEY=gsk_...                # enables claim source search
 npm run dev
 ```
 
-The key is only ever read in the server route (`src/app/api/analyze/route.ts`).
-It is never sent to the browser and never stored client-side.
+Keys are only read by server-side API routes and are never sent to the browser
+or stored client-side. Groq browser search uses `openai/gpt-oss-120b`; source
+links come from search results returned by Groq, not model-generated URLs.
 
 Other scripts: `npm run build`, `npm run start`, `npm run typecheck`, and
 `npm run selfcheck` (216 assertions over the diff, classifier, layout and

@@ -23,11 +23,11 @@ import type { MutationEdgeData, StatementNodeData } from "./graph-types";
 const nodeTypes: NodeTypes = { statement: StatementNode };
 const edgeTypes: EdgeTypes = { mutation: MutationEdge };
 
-const NODE_WIDTH = 280;
-const NODE_HEIGHT = 146;
-const COLUMN_GAP = 24;
-const LEVEL_GAP = 50;
-const TREE_GAP = 0.5;
+const NODE_WIDTH = 260;
+const NODE_HEIGHT = 136;
+const COLUMN_GAP = 84;
+const LEVEL_GAP = 88;
+const TREE_GAP = 1;
 
 function verticalLayout(chain: Chain): Map<string, { x: number; y: number }> {
   const visible = chain.nodes.filter((node) => !node.unlinked || node.id === chain.nodes[0]?.id);
@@ -177,7 +177,12 @@ export default function Graph({
     () =>
       (chain.edges ?? []).map((edge) => {
         const dominant = dominantMutation(edge.mutations);
-        const color = dominant ? metaFor(dominant.kind).color : "#64788c";
+        const color =
+          edge.relationship === "documented"
+            ? "#10cda2"
+            : edge.relationship === "insufficient"
+              ? "#8a9bb1"
+              : "#3985ff";
         const label = dominant
           ? `${metaFor(dominant.kind).label}${
               edge.mutations.length > 1 ? ` +${edge.mutations.length - 1}` : ""
@@ -223,14 +228,14 @@ export default function Graph({
       minZoom={0.2}
       maxZoom={1.4}
       fitView={!narrow}
-      fitViewOptions={{ padding: 0.08, maxZoom: 1 }}
+      fitViewOptions={{ padding: 0.12, maxZoom: 1.1 }}
       onInit={(instance) => {
-        window.requestAnimationFrame(() => instance.fitView({ padding: 0.08, maxZoom: 1 }));
+        window.requestAnimationFrame(() => instance.fitView({ padding: 0.12, maxZoom: 1.1 }));
       }}
       defaultViewport={narrow ? narrowViewport : undefined}
       className="graph"
     >
-      <Background variant={BackgroundVariant.Dots} gap={26} size={1} color="#1a2532" />
+      <Background variant={BackgroundVariant.Dots} gap={24} size={1.2} color="#18304d" />
       <Controls showInteractive={false} position="bottom-right" />
     </ReactFlow>
   );

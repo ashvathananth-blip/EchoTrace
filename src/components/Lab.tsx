@@ -21,6 +21,20 @@ type View = "welcome" | "investigation";
 
 
 
+
+function sourceHost(url?: string): string {
+  if (!url) return "";
+  try {
+    const parsed = new URL(url);
+    return parsed.protocol === "http:" || parsed.protocol === "https:"
+      ? parsed.hostname
+      : "";
+  } catch {
+    return "";
+  }
+}
+
+
 function engineLabel(chain: Chain): string {
   const prediction = chain.mode === "predict";
   if (chain.engine === "anthropic") return prediction ? "Model prediction" : "Model analysis";
@@ -264,7 +278,7 @@ const handleChain = useCallback((next: Chain, sources: ResearchSource[] = []) =>
                   </div>
                   <h1>{chain.title}</h1>
                   {chain.verdict ? <p className="verdict">{chain.verdict}</p> : null}
-                  {chain.engine === "heuristic" && chain.message ? (
+                  {chain.message ? (
                     <p className="notice">{chain.message}</p>
                   ) : null}
                 </div>
@@ -339,6 +353,7 @@ const handleChain = useCallback((next: Chain, sources: ResearchSource[] = []) =>
                 </div>
 
 
+
                 <aside className="analysis" ref={analysisRef} aria-label="Analysis">
                   <Inspector
                     key={`${chain.id}-${selection?.kind ?? "none"}-${selection?.id ?? "none"}`}
@@ -348,6 +363,68 @@ const handleChain = useCallback((next: Chain, sources: ResearchSource[] = []) =>
                     onSelectEdge={selectEdge}
                   />
                 </aside>
+
+                <div className="graph-sidebar">
+                  <section className="sources-panel" aria-label="Sources for the original claim">
+                    <div className="sources-head">
+                      <div className="sources-title">
+                        <span className="sources-icon" aria-hidden="true">
+                          <svg viewBox="0 0 24 24" fill="none">
+                            <circle cx="10.8" cy="10.8" r="6.5" />
+                            <path d="m15.6 15.6 4.2 4.2" />
+                          </svg>
+                        </span>
+                        <div>
+                        <p className="sources-eyebrow">Research</p>
+                          <h2>Claim sources</h2>
+                        </div>
+                      </div>
+                      <span className="sources-count">
+                        {chain.nodes[0]?.sources?.length ?? 0} found
+                      </span>
+                    </div>
+                    <p className="sources-note">
+                      References for the original claim—not evidence of how it spread.
+                    </p>
+                    {chain.nodes[0]?.sources?.length ? (
+                      <ul className="sources-list">
+                        {chain.nodes[0].sources.map((source) => (
+                          <li key={source.url ?? source.label}>
+                            {source.url && sourceHost(source.url) ? (
+                              <a href={source.url} target="_blank" rel="noreferrer noopener">
+                                <span className="source-mark" aria-hidden>
+                                  ↗
+                                </span>
+                                <span className="source-copy">
+                                  <strong>{source.label}</strong>
+                                  <small>{sourceHost(source.url)}</small>
+                                </span>
+                              </a>
+                            ) : (
+                              <span className="source-copy">
+                                <strong>{source.label}</strong>
+                              </span>
+                            )}
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p className="sources-empty">
+                        No web sources found. Add <code>GROQ_API_KEY</code> to enable search.
+                      </p>
+                    )}
+                  </section>
+                  <aside className="analysis" ref={analysisRef} aria-label="Analysis">
+                    <Inspector
+                      key={`${chain.id}-${selection?.kind ?? "none"}-${selection?.id ?? "none"}`}
+                      chain={chain}
+                      selection={selection}
+                      onSelectNode={selectNode}
+                      onSelectEdge={selectEdge}
+                    />
+                  </aside>
+                </div>
+origin/shashaanth20-collab-echo-trace-graph-view
               </div>
 
               {chain.mode === "predict" && researchSources.length > 0 ? (
@@ -413,7 +490,7 @@ const handleChain = useCallback((next: Chain, sources: ResearchSource[] = []) =>
               {inputMode === "predict" ? (
                 <Predictor onChain={handleChain} />
               ) : (
-                <Composer seed={seed} onChain={handleChain} />
+                <Composer key={JSON.stringify(seed)} seed={seed} onChain={handleChain} />
               )}
             </section>
           )}

@@ -48,6 +48,7 @@ export interface StatementNode {
   mutations: Mutation[];
   source: Engine;
   origin?: StatementOrigin;
+  sources?: StatementOrigin[];
   unlinked?: boolean;
 }
 

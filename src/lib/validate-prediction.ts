@@ -30,7 +30,6 @@ export function validatePrediction(
   ) {
     throw new Error("Invalid prediction response");
   }
-
   const nodes = input.nodes as PredictionNode[];
   const edges = input.edges as PredictionEdge[];
 
@@ -160,4 +159,3 @@ export function validatePrediction(
     edges
   };
 }
-

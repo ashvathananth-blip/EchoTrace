@@ -1,3 +1,4 @@
+
 import { NextResponse } from "next/server";
 import { generateGroqPredictions } from "@/lib/groq-predict";
 import { researchClaim } from "@/lib/research";
@@ -25,6 +26,7 @@ function rateLimited(request: Request): boolean {
     request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
     request.headers.get("x-real-ip") ||
     "local";
+
   const now = Date.now();
   const entry = hits.get(key);
 
@@ -38,7 +40,12 @@ function rateLimited(request: Request): boolean {
   return entry.count > WINDOW_LIMIT;
 }
 
-function clamp(value: unknown, min: number, max: number, fallback: number): number {
+function clamp(
+  value: unknown,
+  min: number,
+  max: number,
+  fallback: number,
+): number {
   const numeric = Number(value);
   if (!Number.isFinite(numeric)) return fallback;
   return Math.max(min, Math.min(max, Math.round(numeric)));
@@ -47,23 +54,31 @@ function clamp(value: unknown, min: number, max: number, fallback: number): numb
 export async function POST(request: Request) {
   if (rateLimited(request)) {
     return NextResponse.json(
-      { error: "Too many predictions in a minute. Take a breath and retry." },
+      { error: "Too many predictions in a minute. Please retry shortly." },
       { status: 429 },
     );
   }
 
   let body: unknown;
+
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json({ error: "Expected a JSON body." }, { status: 400 });
+    return NextResponse.json(
+      { error: "Expected a JSON body." },
+      { status: 400 },
+    );
   }
 
   if (!body || typeof body !== "object") {
-    return NextResponse.json({ error: "Expected a JSON object." }, { status: 400 });
+    return NextResponse.json(
+      { error: "Expected a JSON object." },
+      { status: 400 },
+    );
   }
 
   const input = body as Partial<PredictionRequest>;
+
   const claim =
     typeof input.claim === "string"
       ? input.claim.replace(/\s+/g, " ").trim().slice(0, MAX_TEXT)
@@ -82,6 +97,7 @@ export async function POST(request: Request) {
     PREDICTION_MAX_DEPTH,
     PREDICTION_MAX_DEPTH,
   );
+
   const branches = clamp(
     input.branches,
     PREDICTION_MIN_BRANCHES,
@@ -94,7 +110,7 @@ export async function POST(request: Request) {
     claim,
   };
 
-
+  // Groq predictions with Tavily research context
   if (process.env.GROQ_API_KEY) {
     try {
       let sources: Awaited<ReturnType<typeof researchClaim>>["sources"] = [];
@@ -141,25 +157,29 @@ export async function POST(request: Request) {
       console.error("Groq prediction failed:", error);
 
       return NextResponse.json(
-        { error: "Groq prediction failed. No substitute graph was generated." },
+        {
+          error:
+            "Groq prediction failed. No substitute graph was generated.",
+        },
         { status: 502 },
       );
     }
   }
 
-
+  // Fallback only when no Groq API key is configured
   const engine: Engine = "heuristic";
   const drafts = localPrediction(claim, depth, branches);
+
   const chain = buildPrediction({
     ...base,
     drafts,
     engine,
     message:
-      "Local prediction: no model key is configured, so these mutations come from a rule-based simulator, not the AI. Treat them as illustrative.",
+      "Local prediction: no model key is configured, so these mutations come from a rule-based simulator, not AI. Treat them as illustrative.",
     verdict: `Illustrative local forecast across up to ${depth} generations.`,
   });
 
-    return NextResponse.json({
+  return NextResponse.json({
     chain,
     research: {
       sources: [],
@@ -167,4 +187,3 @@ export async function POST(request: Request) {
     },
   });
 }
-

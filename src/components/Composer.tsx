@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type FormEvent } from "react";
+import { useState, type FormEvent } from "react";
 import type { Chain, StatementOrigin } from "@/lib/types";
 
 interface Row {
@@ -89,12 +89,6 @@ export default function Composer({ seed, onChain }: ComposerProps) {
   const [rows, setRows] = useState<Row[]>(() => rowsFromSeed(seed));
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    setClaim(seed.claim);
-    setRows(rowsFromSeed(seed));
-    setError(null);
-  }, [seed]);
 
   const updateRow = (id: string, patch: Partial<Row>) => {
     setRows((current) =>
