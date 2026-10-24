@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { buildInvestigation, inferRelationships } from "@/lib/analyze";
-import { investigateStatements } from "@/lib/anthropic";
-import { findClaimSources } from "@/lib/groq-predict";
+import { investigateStatements } from "@/lib/groq-investigation";
+import { researchClaim } from "@/lib/research";
 import type {
   Engine,
   InvestigationEdgeCandidate,
@@ -122,7 +122,7 @@ export async function POST(request: Request) {
   let claimSources: StatementOrigin[] = [];
 
   try {
-    if (process.env.ANTHROPIC_API_KEY) {
+    if (process.env.GROQ_API_KEY) {
       const result = await investigateStatements(claim, statements);
       if (!result) {
         return NextResponse.json(
@@ -162,12 +162,38 @@ export async function POST(request: Request) {
 
   if (process.env.GROQ_API_KEY) {
     try {
-      claimSources = await findClaimSources(claim);
-      if (claimSources.length === 0) {
-        message = [message, "Web search found no sources to display for this claim."]
-          .filter(Boolean)
-          .join(" ");
-      }
+      if (process.env.TAVILY_API_KEY) {
+  try {
+    const research = await researchClaim(claim);
+
+    claimSources = research.sources.map((source) => ({
+      label: source.title,
+      url: source.url,
+    }));
+
+    if (claimSources.length === 0) {
+      message = [
+        message,
+        "Web search found no sources to display for this claim.",
+      ]
+        .filter(Boolean)
+        .join(" ");
+    }
+  } catch (error) {
+    console.error(
+      `[echotrace] source search failed: ${
+        error instanceof Error ? error.message : "unknown error"
+      }`,
+    );
+
+    message = [
+      message,
+      "Source search is temporarily unavailable.",
+    ]
+      .filter(Boolean)
+      .join(" ");
+  }
+}
     } catch (error) {
       console.error(
         `[echotrace] source search failed: ${error instanceof Error ? error.message : "unknown error"}`,
