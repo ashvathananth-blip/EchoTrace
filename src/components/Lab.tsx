@@ -7,7 +7,7 @@ import Composer, {
   type ComposerSeed,
 } from "./Composer";
 import Inspector, { type InspectorSelection } from "./Inspector";
-import Predictor from "./Predictor";
+import Predictor, { type ResearchSource } from "./Predictor";
 import Welcome from "./Welcome";
 import { buildShareUrl, decodeChain } from "@/lib/share";
 import type { Chain, InvestigationEdge } from "@/lib/types";
@@ -18,6 +18,9 @@ const Graph = dynamic(() => import("./Graph"), {
 });
 
 type View = "welcome" | "investigation";
+
+
+
 
 function sourceHost(url?: string): string {
   if (!url) return "";
@@ -30,6 +33,7 @@ function sourceHost(url?: string): string {
     return "";
   }
 }
+
 
 function engineLabel(chain: Chain): string {
   const prediction = chain.mode === "predict";
@@ -82,6 +86,7 @@ function prefersReducedMotion(): boolean {
 export default function Lab() {
   const [view, setView] = useState<View>("welcome");
   const [chain, setChain] = useState<Chain | null>(null);
+  const [researchSources, setResearchSources] = useState<ResearchSource[]>([]);
   const [selection, setSelection] = useState<InspectorSelection>(null);
   const [showCompose, setShowCompose] = useState(true);
   const [inputMode, setInputMode] = useState<"predict" | "analyze">("predict");
@@ -140,9 +145,10 @@ export default function Lab() {
     analysisRef.current?.scrollTo({ top: 0 });
   }, [selection, chain?.id]);
 
-  const handleChain = useCallback((next: Chain) => {
+const handleChain = useCallback((next: Chain, sources: ResearchSource[] = []) => {
     const count = next.edges?.length ?? 0;
     setChain(next);
+    setResearchSources(sources);
     setSelection(selectionFor(next));
     setSeed(seedFromChain(next));
     setShowCompose(false);
@@ -346,19 +352,39 @@ export default function Lab() {
                   ) : null}
                 </div>
 
+
+
+                <aside className="analysis" ref={analysisRef} aria-label="Analysis">
+                  <Inspector
+                    key={`${chain.id}-${selection?.kind ?? "none"}-${selection?.id ?? "none"}`}
+                    chain={chain}
+                    selection={selection}
+                    onSelectNode={selectNode}
+                    onSelectEdge={selectEdge}
+                  />
+                </aside>
+
                 <div className="graph-sidebar">
                   <section className="sources-panel" aria-label="Sources for the original claim">
                     <div className="sources-head">
-                      <div>
+                      <div className="sources-title">
+                        <span className="sources-icon" aria-hidden="true">
+                          <svg viewBox="0 0 24 24" fill="none">
+                            <circle cx="10.8" cy="10.8" r="6.5" />
+                            <path d="m15.6 15.6 4.2 4.2" />
+                          </svg>
+                        </span>
+                        <div>
                         <p className="sources-eyebrow">Research</p>
-                        <h2>Sources</h2>
+                          <h2>Claim sources</h2>
+                        </div>
                       </div>
                       <span className="sources-count">
-                        {chain.nodes[0]?.sources?.length ?? 0}
+                        {chain.nodes[0]?.sources?.length ?? 0} found
                       </span>
                     </div>
                     <p className="sources-note">
-                      References found for the original claim. Sources do not prove how it spread.
+                      References for the original claim—not evidence of how it spread.
                     </p>
                     {chain.nodes[0]?.sources?.length ? (
                       <ul className="sources-list">
@@ -398,8 +424,36 @@ export default function Lab() {
                     />
                   </aside>
                 </div>
+origin/shashaanth20-collab-echo-trace-graph-view
               </div>
+
+              {chain.mode === "predict" && researchSources.length > 0 ? (
+                <section className="research-sources" aria-label="Research sources">
+                  <h2>Research Sources</h2>
+                  <p>
+                    These sources provide context for the original claim.
+                    They do not verify the hypothetical predictions.
+                  </p>
+
+                  <div className="research-source-list">
+                    {researchSources.map((source, index) => (
+                      <article className="research-source" key={`${source.url}-${index}`}>
+                        <h3>
+                          <a href={source.url} target="_blank" rel="noopener noreferrer">
+                            {source.title}
+                          </a>
+                        </h3>
+                        <p>{source.content.slice(0, 300)}</p>
+                        <a href={source.url} target="_blank" rel="noopener noreferrer">
+                          View original source ↗
+                        </a>
+                      </article>
+                    ))}
+                  </div>
+                </section>
+              ) : null}
             </>
+
           ) : (
             <section className="compose" aria-labelledby="compose-title">
               <div className="compose-head">

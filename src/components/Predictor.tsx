@@ -3,8 +3,15 @@
 import { useState, type FormEvent } from "react";
 import type { Chain } from "@/lib/types";
 
+export interface ResearchSource {
+  title: string;
+  url: string;
+  content: string;
+  score: number;
+}
+
 export interface PredictorProps {
-  onChain: (chain: Chain) => void;
+  onChain: (chain: Chain, sources?: ResearchSource[]) => void;
   initialClaim?: string;
 }
 
@@ -35,11 +42,18 @@ export default function Predictor({ onChain, initialClaim = "" }: PredictorProps
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ claim: claim.trim(), depth, branches }),
       });
-      const data = (await response.json()) as { chain?: Chain; error?: string };
+      const data = (await response.json()) as {
+        chain?: Chain;
+        research?: {
+          sources: ResearchSource[];
+          status: string;
+      };
+  error?: string;
+};
       if (!response.ok || !data.chain) {
         throw new Error(data.error ?? "The prediction failed. Try again.");
       }
-      onChain(data.chain);
+      onChain(data.chain,  data.research?.sources ?? []);
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "Something went wrong.");
     } finally {
