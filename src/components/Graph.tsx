@@ -178,11 +178,11 @@ export default function Graph({
       (chain.edges ?? []).map((edge) => {
         const dominant = dominantMutation(edge.mutations);
         const color =
-          edge.relationship === "documented"
-            ? "#10cda2"
-            : edge.relationship === "insufficient"
-              ? "#8a9bb1"
-              : "#3985ff";
+  edge.relationship === "documented"
+    ? "#a78bfa"
+    : edge.relationship === "insufficient"
+      ? "#facc15"
+      : "#10cda2";
         const label = dominant
           ? `${metaFor(dominant.kind).label}${
               edge.mutations.length > 1 ? ` +${edge.mutations.length - 1}` : ""
@@ -198,6 +198,8 @@ export default function Graph({
             color,
             label,
             relationship: edge.relationship,
+            confidence: edge.confidence,
+            prediction: chain.mode === "predict",
             onPath: !hasFocus || pathIds.has(edge.targetId) || edge.relationship === "documented",
             active: edge.id === selectedEdgeId,
             onSelect: () => onSelectEdge(edge.id),

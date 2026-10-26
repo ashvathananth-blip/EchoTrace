@@ -30,7 +30,7 @@ export default function StatementNode({ data }: NodeProps) {
         <span
           className="node-band"
           style={{
-            color: node.isClaim ? "#9c83ff" : node.unlinked ? "#9aa8ba" : "#10cda2",
+            color: node.isClaim ? "#10cda2" : node.unlinked ? "#9aa8ba" : "#a78bfa",
           }}
         >
           {status}

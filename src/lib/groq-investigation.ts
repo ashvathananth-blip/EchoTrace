@@ -36,9 +36,16 @@ Rules:
 - Never create cycles.
 - Each statement may have at most one incoming relationship.
 - Do not force relationships between unrelated statements.
-- Use "documented" only when supplied source notes explicitly
-  establish the relationship.
-- Otherwise use "inferred", or "insufficient" when evidence is weak.
+- Use "documented" when the supplied source information explicitly
+  supports the relationship between the two statements.
+- A statement having a source URL does not automatically document
+  its relationship to another statement.
+- Use "inferred" when the statements appear related but the supplied
+  sources do not explicitly establish their connection.
+- Use "insufficient" when there is too little information to
+  confidently determine whether the statements are related.
+- Evaluate each relationship independently. Do not classify every
+  relationship as "inferred" by default.
 - Confidence must be high, medium, or low.
 - Classify semantic changes using the supplied mutation taxonomy.
 - Evidence quotes must be exact substrings of the source or target.

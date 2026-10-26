@@ -674,7 +674,10 @@ export function buildPrediction(params: BuildPredictionParams): Chain {
       id: `edge-${node.id}`,
       sourceId: parent.id,
       targetId: node.id,
-      relationship: "inferred",
+      relationship:
+        node.parentId === rootId
+          ? "inferred"
+          : "insufficient",
       confidence: node.parentId === rootId ? "high" : "medium",
       verificationNote:
         "AI-generated hypothetical prediction. It describes a plausible change in meaning, not a documented propagation path.",
