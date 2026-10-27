@@ -178,11 +178,12 @@ export default function Graph({
       (chain.edges ?? []).map((edge) => {
         const dominant = dominantMutation(edge.mutations);
         const color =
-  edge.relationship === "documented"
-    ? "#a78bfa"
-    : edge.relationship === "insufficient"
-      ? "#facc15"
-      : "#10cda2";
+  
+          edge.relationship === "documented"
+            ? "#10cda2" // Teal: documented
+            : edge.relationship === "insufficient"
+              ? "#facc15" // Yellow: weak
+              : "#a78bfa"; // Purple: inferred
         const label = dominant
           ? `${metaFor(dominant.kind).label}${
               edge.mutations.length > 1 ? ` +${edge.mutations.length - 1}` : ""

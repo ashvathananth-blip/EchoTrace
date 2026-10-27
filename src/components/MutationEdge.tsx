@@ -25,16 +25,23 @@ export default function MutationEdge(props: EdgeProps) {
 
   const color =
     relationship === "documented"
-      ? "#a78bfa"
+      ? "#10cda2"
       : relationship === "insufficient"
         ? "#facc15"
-        : "#10cda2";
+        : "#a78bfa";
 
-  const isDocumented = relationship === "documented";
   const isInsufficient = relationship === "insufficient";
-  const isAnimated = !isDocumented && !isInsufficient;
+  const isInferred = relationship === "inferred";
 
-  const strokeDasharray = isInsufficient ? "2 5" : undefined;
+  const strokeDasharray = isInsufficient
+    ? "2 5"
+    : isInferred
+      ? "7 5"
+      : undefined;
+
+  const reducedMotion =
+    typeof window !== "undefined" &&
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches;  
 
   const [path] = getSmoothStepPath({
     sourceX,
@@ -59,22 +66,23 @@ export default function MutationEdge(props: EdgeProps) {
         }}
       />
 
-      {isAnimated && (
+      {!reducedMotion && (
         <path
           d={path}
           fill="none"
           stroke={color}
-          strokeWidth={2}
-          strokeDasharray="3 7"
+          strokeWidth={3}
+          strokeDasharray="3 35"
           strokeLinecap="round"
-          pathLength={100}
-          className="echo-trace-animated-edge"
+          className="echo-trace-flow-pulse"
           style={{
             pointerEvents: "none",
-            opacity: 0.95,
+            opacity: edge?.onPath ? 1 : 0.4,
           }}
         />
       )}
+
+
 
       <defs>
         <marker

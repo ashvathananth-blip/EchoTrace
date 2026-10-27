@@ -410,48 +410,16 @@ const handleChain = useCallback((next: Chain, sources: ResearchSource[] = []) =>
                       </ul>
                     ) : (
                       <p className="sources-empty">
-                        No web sources found. Add <code>GROQ_API_KEY</code> to enable search.
+                        No relevant web sources were found for this claim.
                       </p>
                     )}
                   </section>
-                  <aside className="analysis" ref={analysisRef} aria-label="Analysis">
-                    <Inspector
-                      key={`${chain.id}-${selection?.kind ?? "none"}-${selection?.id ?? "none"}`}
-                      chain={chain}
-                      selection={selection}
-                      onSelectNode={selectNode}
-                      onSelectEdge={selectEdge}
-                    />
-                  </aside>
                 </div>
-origin/shashaanth20-collab-echo-trace-graph-view
+
               </div>
+                
 
-              {chain.mode === "predict" && researchSources.length > 0 ? (
-                <section className="research-sources" aria-label="Research sources">
-                  <h2>Research Sources</h2>
-                  <p>
-                    These sources provide context for the original claim.
-                    They do not verify the hypothetical predictions.
-                  </p>
-
-                  <div className="research-source-list">
-                    {researchSources.map((source, index) => (
-                      <article className="research-source" key={`${source.url}-${index}`}>
-                        <h3>
-                          <a href={source.url} target="_blank" rel="noopener noreferrer">
-                            {source.title}
-                          </a>
-                        </h3>
-                        <p>{source.content.slice(0, 300)}</p>
-                        <a href={source.url} target="_blank" rel="noopener noreferrer">
-                          View original source ↗
-                        </a>
-                      </article>
-                    ))}
-                  </div>
-                </section>
-              ) : null}
+              
             </>
 
           ) : (

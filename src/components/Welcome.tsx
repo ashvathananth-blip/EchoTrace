@@ -15,7 +15,7 @@ import {
 const READING_GUIDE = [
   {
     title: "Nodes",
-    body: "Each card is one statement. The original claim is the baseline; the band above a card shows how far its meaning has moved.",
+    body: "Each card is one statement. The colored band obove the card shows how the claim has been presumed.",
   },
   {
     title: "Arrows and labels",
@@ -23,7 +23,7 @@ const READING_GUIDE = [
   },
   {
     title: "Branches",
-    body: "One claim can evolve in several directions at once. A branch is an alternative future, not a sequence, and not proof that one version caused another.",
+    body: "One claim can evolve in several directions all at once, similar to actual false information. These should all be treated as alternates and not connected unless they are.",
   },
   {
     title: "Evidence",
@@ -130,12 +130,12 @@ export default function Welcome({ onStart }: WelcomeProps) {
               <h3>AI predicts the evolution</h3>
               <p>
                 EchoTrace generates possible changes in wording, context, certainty and
-                emotional framing, then predicts how those changes could develop further —
-                branching into multiple generations.
+                emotional framing, then predicts how those changes could develop further,
+                creating multiple connections in the process 
               </p>
               <p className="w-step-note">
-                Every generated statement is a hypothetical prediction. It is not a quotation,
-                a real source, or a record of how a story actually spread.
+                Every generated statement is a hypothetical prediction. It should only be regarded 
+                as a AI predicted conclusion.
               </p>
             </div>
             <div className="w-step-visual">
@@ -149,12 +149,11 @@ export default function Welcome({ onStart }: WelcomeProps) {
               <h3>Explore the evolution graph</h3>
               <p>
                 Explore the AI-generated branches to understand how the original meaning could
-                change across multiple generations. Select any statement or arrow to see exactly
-                what shifted and why the distortion is plausible.
+                change across multiple generations. Select any statement to view how one false or true 
+                claim can be twisted by assumptions.
               </p>
               <p className="w-step-note">
-                Forecasts show what could happen — not what did happen. Treat each branch as a
-                scenario to examine, not a proven path.
+                Forcasts show what could happen and has some creative liberties taken.
               </p>
             </div>
             <div className="w-step-visual">

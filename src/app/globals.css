@@ -625,6 +625,7 @@ select:focus {
   line-height: 1.5;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
 }
 
 .notice {
@@ -894,6 +895,7 @@ select:focus {
   line-height: 1.5;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 3;
+  line-clamp: 3;
 }
 
 .node-foot {
@@ -2717,4 +2719,24 @@ select:focus {
     stroke-dashoffset: -20;
   }
 }
-  
+
+/* Moving information pulses along graph connections */
+@keyframes echoTraceFlow {
+  from {
+    stroke-dashoffset: 38;
+  }
+
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.echo-trace-flow-pulse {
+  animation: echoTraceFlow 2.5s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .echo-trace-flow-pulse {
+    display: none;
+  }
+}
