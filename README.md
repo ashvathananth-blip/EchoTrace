@@ -129,7 +129,7 @@ src/
     share.ts               permalink encode/decode
 ```
 
-## Honest limits
+## limits
 
 - The example chains are **illustrative, not real papers**. The transformations
   are the recurring patterns; the sentences were written to demonstrate them.
@@ -143,7 +143,7 @@ src/
 - The rate limit is per server instance and in-memory; put it in a shared store
   before running this publicly at scale.
 
-## If you keep going
+## If the project keeps developing
 
 - Export a chain as PNG/SVG for publication.
 - Compare two branches directly ("what does this version have that this one
