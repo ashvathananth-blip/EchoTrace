@@ -1,6 +1,6 @@
-# Mutagraph
+# EchoTrace
 
-Most misinformation tools label a sentence true or false. Mutagraph shows the
+Most misinformation tools label a sentence true or false. EchoTrace shows the
 **route** a sentence took: which hedge became proof, which association became a
 cause, which qualifier was dropped, and which exact words did it.
 
@@ -16,33 +16,6 @@ A study found an association between screen time and sleep duration.
     └── Scientists prove phones cause serious sleep problems.                  drift 88
 ```
 
-## Run it
-
-```bash
-npm install
-npm run dev            # http://localhost:3000
-```
-
-The app works with no configuration: the built-in offline analyser compares
-statements word by word and classifies the transformations it finds. Add
-`GROQ_API_KEY` to enable web search for claim sources alongside the graph. To let
-Anthropic classify and explain statement changes as well, add its key:
-
-```bash
-cp .env.example .env.local
-# ANTHROPIC_API_KEY=sk-ant-...
-# ANTHROPIC_MODEL=claude-sonnet-4-5   # optional
-# GROQ_API_KEY=gsk_...                # enables claim source search
-npm run dev
-```
-
-Keys are only read by server-side API routes and are never sent to the browser
-or stored client-side. Groq browser search uses `openai/gpt-oss-120b`; source
-links come from search results returned by Groq, not model-generated URLs.
-
-Other scripts: `npm run build`, `npm run start`, `npm run typecheck`, and
-`npm run selfcheck` (216 assertions over the diff, classifier, layout and
-permalink encoding).
 
 ## What is on screen
 
@@ -129,7 +102,7 @@ src/
     share.ts               permalink encode/decode
 ```
 
-## limits
+## Limits
 
 - The example chains are **illustrative, not real papers**. The transformations
   are the recurring patterns; the sentences were written to demonstrate them.
