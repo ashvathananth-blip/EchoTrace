@@ -9,7 +9,7 @@ export default function StatementNode({ data }: NodeProps) {
   const dominant = dominantMutation(node.statement.mutations);
   const meta = dominant ? metaFor(dominant.kind) : null;
 
-  const status = node.isClaim ? "Claim" : node.unlinked ? "Unlinked" : "Statement";
+  const status = node.isClaim ? "Claim" : node.unlinked ? "Unlinked" : node.prediction ? "Hypothetical" : "Submitted observation";
 
   return (
     <div
@@ -46,7 +46,7 @@ export default function StatementNode({ data }: NodeProps) {
         </span>
       </div>
 
-      <p className="node-text">{node.statement.text}</p>
+      <p className="node-text" title={node.statement.text}>{node.statement.text}</p>
 
       <div className="node-foot">
         {meta ? (

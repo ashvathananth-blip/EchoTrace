@@ -85,13 +85,14 @@ export default function Predictor({ onChain, initialClaim = "" }: PredictorProps
         </span>
         <textarea
           value={claim}
-          rows={3}
+          rows={4}
           maxLength={500}
           placeholder="A study found that…"
           onChange={(event) => setClaim(event.target.value)}
         />
       </label>
 
+      <div className="input-counter">{claim.length} / 500 characters</div>
       <div className="predict-settings">
         <label className="predict-setting">
           <span className="field-label">Generations</span>
@@ -136,7 +137,7 @@ export default function Predictor({ onChain, initialClaim = "" }: PredictorProps
           Predictions are hypothetical. EchoTrace forecasts how a claim could change; it does
           not claim this is how it actually spread.
         </p>
-        <button type="submit" className="btn primary analyze" disabled={busy}>
+        <button type="submit" className="btn primary analyze" disabled={busy || claim.trim().length < 12}>
           {busy ? "Predicting…" : "Predict Evolution"}
         </button>
       </div>

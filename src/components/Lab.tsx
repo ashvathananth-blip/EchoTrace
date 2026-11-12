@@ -9,6 +9,7 @@ import Composer, {
 import Inspector, { type InspectorSelection } from "./Inspector";
 import Predictor, { type ResearchSource } from "./Predictor";
 import Welcome from "./Welcome";
+import GenerationChart from "./GenerationChart";
 import { buildShareUrl, decodeChain } from "@/lib/share";
 import type { Chain, InvestigationEdge } from "@/lib/types";
 
@@ -37,7 +38,7 @@ function sourceHost(url?: string): string {
 
 function engineLabel(chain: Chain): string {
   const prediction = chain.mode === "predict";
-  if (chain.engine === "anthropic") return prediction ? "Model prediction" : "Model analysis";
+  if ((chain.engine === "anthropic" || chain.engine === "groq")) return prediction ? "Model prediction" : "Model analysis";
   if (chain.engine === "heuristic") return prediction ? "Local simulation" : "Local analysis";
   return "Curated example";
 }
@@ -84,7 +85,7 @@ function prefersReducedMotion(): boolean {
 }
 
 export default function Lab() {
-  const [view, setView] = useState<View>("welcome");
+  const [view, setView] = useState<View>("investigation");
   const [chain, setChain] = useState<Chain | null>(null);
   const [researchSources, setResearchSources] = useState<ResearchSource[]>([]);
   const [selection, setSelection] = useState<InspectorSelection>(null);
@@ -188,6 +189,7 @@ const handleChain = useCallback((next: Chain, sources: ResearchSource[] = []) =>
   );
 
   const editStatements = () => {
+    setInputMode(chain?.mode === "predict" ? "predict" : "analyze");
     setShowCompose(true);
     window.scrollTo({ top: 0, behavior: prefersReducedMotion() ? "auto" : "smooth" });
   };
@@ -214,7 +216,7 @@ const handleChain = useCallback((next: Chain, sources: ResearchSource[] = []) =>
           <button
             type="button"
             className="brand"
-            onClick={openWalkthrough}
+            onClick={openInvestigation}
             aria-label="EchoTrace home"
           >
             <span className="brand-mark" aria-hidden>
@@ -226,7 +228,7 @@ const handleChain = useCallback((next: Chain, sources: ResearchSource[] = []) =>
               </svg>
             </span>
             <span className="brand-name">EchoTrace</span>
-            <span className="brand-sub">Misinformation tracer</span>
+            <span className="brand-sub">Research workspace</span>
           </button>
 
           <nav className="site-nav" aria-label="Main">
@@ -244,7 +246,7 @@ const handleChain = useCallback((next: Chain, sources: ResearchSource[] = []) =>
               aria-current={view === "investigation" ? "page" : undefined}
               onClick={openInvestigation}
             >
-              Investigation
+              Workspace
               {chain ? <span className="nav-dot" aria-hidden /> : null}
             </button>
           </nav>
@@ -307,8 +309,11 @@ const handleChain = useCallback((next: Chain, sources: ResearchSource[] = []) =>
                 </div>
               ) : null}
 
+              {chain.mode !== "predict" ? <div className="observation-banner" role="note"><strong>Submitted observations</strong><span>Statements are user supplied. Inferred connections describe changes in meaning; they do not verify a claim or establish a historical spreading sequence.</span></div> : null}
+
               <div className="workspace">
                 <div className="graph-column">
+                  <div className="panel-heading"><div><p className="eyebrow">01 / RELATIONSHIPS</p><h2>Claim evolution</h2></div><span className="engine-pill">{chain.nodes.length} statements · {chain.edges?.length ?? 0} connections</span></div>
                   <div className="graph-panel">
                     <Graph
                       key={`${chain.id}-${graphEpoch}-${chain.nodes.map((node) => node.id).join("-")}`}
@@ -318,10 +323,10 @@ const handleChain = useCallback((next: Chain, sources: ResearchSource[] = []) =>
                       onSelectNode={selectNode}
                       onSelectEdge={selectEdge}
                     />
-                    <div className="graph-legend" aria-hidden>
+                    <div className="graph-legend">
                       <span>
                         <i className="key-line key-documented" />
-                        Documented
+                        {chain.mode === "predict" ? "Hypothetical" : "Documented"}
                       </span>
                       <span>
                         <i className="key-line key-inferred" />
@@ -336,6 +341,7 @@ const handleChain = useCallback((next: Chain, sources: ResearchSource[] = []) =>
                       Select a statement or connection to investigate how its meaning changed
                     </p>
                   </div>
+                  <GenerationChart chain={chain} />
                   {unlinked.length > 0 ? (
                     <div className="unlinked-strip">
                       <span>Not connected</span>
@@ -355,6 +361,7 @@ const handleChain = useCallback((next: Chain, sources: ResearchSource[] = []) =>
 
 
                 <aside className="analysis" ref={analysisRef} aria-label="Analysis">
+                  <div className="inspector-title"><p className="eyebrow">02 / CLOSE READING</p><h2>Analysis details</h2></div>
                   <Inspector
                     key={`${chain.id}-${selection?.kind ?? "none"}-${selection?.id ?? "none"}`}
                     chain={chain}
@@ -410,7 +417,7 @@ const handleChain = useCallback((next: Chain, sources: ResearchSource[] = []) =>
                       </ul>
                     ) : (
                       <p className="sources-empty">
-                        No relevant web sources were found for this claim.
+                        {chain.mode === "predict" ? "No web references are available for this result." : "Analysis uses your submitted statements. Add source URLs when entering observations to preserve their provenance."}
                       </p>
                     )}
                   </section>
@@ -425,16 +432,16 @@ const handleChain = useCallback((next: Chain, sources: ResearchSource[] = []) =>
           ) : (
             <section className="compose" aria-labelledby="compose-title">
               <div className="compose-head">
-                <p className="eyebrow">Step 1 · Enter a claim</p>
+                <p className="eyebrow">CLAIM INTELLIGENCE / NEW INVESTIGATION</p>
                 <h1 id="compose-title" className="hero-title">
                   {inputMode === "predict"
-                    ? "What claim should we trace?"
-                    : "What statements did you find?"}
+                    ? "Understand the claim.\nExplore what comes next."
+                    : "Follow the evidence.\nTrace the changes."}
                 </h1>
                 <p className="hero-lede">
                   {inputMode === "predict"
-                    ? "Enter one statement. EchoTrace analyses its meaning and predicts how it could be distorted as it spreads."
-                    : "Paste the original statement and the versions you found. EchoTrace works out which relate to which."}
+                    ? "Explore how a claim could change as it travels. Start with one statement; inspect every transformation."
+                    : "Compare a claim with comments and versions you have collected. Examine changes in meaning, context and certainty."}
                 </p>
               </div>
 
@@ -444,22 +451,23 @@ const handleChain = useCallback((next: Chain, sources: ResearchSource[] = []) =>
                   aria-pressed={inputMode === "predict"}
                   onClick={() => setInputMode("predict")}
                 >
-                  Predict evolution
+                  <span className="mode-icon" aria-hidden>↗</span><span>Predict evolution<small>Explore hypothetical transformations</small></span>
                 </button>
                 <button
                   type="button"
                   aria-pressed={inputMode === "analyze"}
                   onClick={() => setInputMode("analyze")}
                 >
-                  Analyze existing statements
+                  <span className="mode-icon" aria-hidden>≋</span><span>Analyze observations<small>Compare comments and existing statements</small></span>
                 </button>
               </div>
 
               {inputMode === "predict" ? (
-                <Predictor onChain={handleChain} />
+                <Predictor initialClaim={seed.claim} onChain={handleChain} />
               ) : (
                 <Composer key={JSON.stringify(seed)} seed={seed} onChain={handleChain} />
               )}
+            <div className="workspace-notes"><div><span>01</span><strong>Start with a claim</strong><p>Keep the original wording and its caveats.</p></div><div><span>02</span><strong>Inspect the changes</strong><p>Select connections to see what was added or lost.</p></div><div><span>03</span><strong>Read with context</strong><p>Predictions are possibilities, not observed events.</p></div></div>
             </section>
           )}
         </div>

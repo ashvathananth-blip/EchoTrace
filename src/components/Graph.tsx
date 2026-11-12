@@ -23,10 +23,10 @@ import type { MutationEdgeData, StatementNodeData } from "./graph-types";
 const nodeTypes: NodeTypes = { statement: StatementNode };
 const edgeTypes: EdgeTypes = { mutation: MutationEdge };
 
-const NODE_WIDTH = 260;
-const NODE_HEIGHT = 136;
-const COLUMN_GAP = 84;
-const LEVEL_GAP = 88;
+const NODE_WIDTH = 290;
+const NODE_HEIGHT = 175;
+const COLUMN_GAP = 100;
+const LEVEL_GAP = 110;
 const TREE_GAP = 1;
 
 function verticalLayout(chain: Chain): Map<string, { x: number; y: number }> {
@@ -213,7 +213,7 @@ export default function Graph({
           },
         };
       }),
-    [chain.edges, hasFocus, pathIds, selectedEdgeId, onSelectEdge],
+    [chain.edges, chain.mode, hasFocus, pathIds, selectedEdgeId, onSelectEdge],
   );
 
   return (
@@ -226,9 +226,10 @@ export default function Graph({
       onNodeClick={(_, node) => onSelectNode(node.id)}
       onEdgeClick={(_, edge) => onSelectEdge(edge.id)}
       onPaneClick={() => onSelectNode(null)}
-      elementsSelectable={false}
+      elementsSelectable
+      aria-label="Interactive claim evolution map. Select a statement or connection for analysis."
       nodesConnectable={false}
-      minZoom={0.2}
+      minZoom={0.08}
       maxZoom={1.4}
       fitView={!narrow}
       fitViewOptions={{ padding: 0.12, maxZoom: 1.1 }}

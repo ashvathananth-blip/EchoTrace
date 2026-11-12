@@ -162,7 +162,7 @@ export default function Composer({ seed, onChain }: ComposerProps) {
   return (
     <form className="composer card" onSubmit={submit} aria-busy={busy}>
       <div className="card-head">
-        <h2>Claim and statements</h2>
+        <h2>Claim and observations</h2>
         <button type="button" className="link-btn" onClick={loadExample}>
           Load example
         </button>
@@ -184,7 +184,7 @@ export default function Composer({ seed, onChain }: ComposerProps) {
 
       <div className="field">
         <span className="field-label">
-          Statements
+          Comments & statements
           <em>
             {rows.length}/{MAX_ROWS}
           </em>
@@ -246,7 +246,7 @@ export default function Composer({ seed, onChain }: ComposerProps) {
           onClick={addRow}
           disabled={rows.length >= MAX_ROWS}
         >
-          + Add statement
+          + Add comment or statement
         </button>
       </div>
 
@@ -273,7 +273,7 @@ export default function Composer({ seed, onChain }: ComposerProps) {
           provide is analysed — no web search, no invented sources.
         </p>
         <button type="submit" className="btn primary analyze" disabled={busy}>
-          {busy ? "Investigating…" : "Investigate claim"}
+          {busy ? "Investigating…" : "Analyze observations"}
         </button>
       </div>
     </form>

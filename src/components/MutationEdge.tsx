@@ -2,6 +2,7 @@
 
 import {
   BaseEdge,
+  EdgeLabelRenderer,
   getSmoothStepPath,
   type EdgeProps,
 } from "@xyflow/react";
@@ -39,11 +40,8 @@ export default function MutationEdge(props: EdgeProps) {
       ? "7 5"
       : undefined;
 
-  const reducedMotion =
-    typeof window !== "undefined" &&
-    window.matchMedia("(prefers-reduced-motion: reduce)").matches;  
 
-  const [path] = getSmoothStepPath({
+  const [path, labelX, labelY] = getSmoothStepPath({
     sourceX,
     sourceY,
     targetX,
@@ -58,6 +56,7 @@ export default function MutationEdge(props: EdgeProps) {
       <BaseEdge
         id={id}
         path={path}
+        markerEnd={props.markerEnd}
         style={{
           stroke: color,
           strokeWidth: edge?.active ? 2.6 : 2,
@@ -66,44 +65,12 @@ export default function MutationEdge(props: EdgeProps) {
         }}
       />
 
-      {!reducedMotion && (
-        <path
-          d={path}
-          fill="none"
-          stroke={color}
-          strokeWidth={3}
-          strokeDasharray="3 35"
-          strokeLinecap="round"
-          className="echo-trace-flow-pulse"
-          style={{
-            pointerEvents: "none",
-            opacity: edge?.onPath ? 1 : 0.4,
-          }}
-        />
-      )}
+      <EdgeLabelRenderer>
+        <button type="button" className={`edge-label nodrag nopan${edge?.active ? " active" : ""}`} style={{ transform: `translate(-50%, -50%) translate(${labelX}px, ${labelY}px)`, borderColor: color }} onClick={edge?.onSelect} title={`${edge?.prediction ? "Hypothetical transformation" : relationship}: ${edge?.label}. Select for evidence.`}>
+          {edge?.label ?? "Related claim"}<span aria-hidden> ↗</span>
+        </button>
+      </EdgeLabelRenderer>
 
-
-
-      <defs>
-        <marker
-          id={`arrow-${id}`}
-          viewBox="0 0 10 10"
-          refX="9"
-          refY="5"
-          markerWidth="7"
-          markerHeight="7"
-          orient="auto"
-        >
-          <path d="M 0 0 L 10 5 L 0 10 z" fill={color} />
-        </marker>
-      </defs>
-
-      <path
-        d={path}
-        fill="none"
-        stroke="none"
-        markerEnd={`url(#arrow-${id})`}
-      />
     </>
   );
 }
